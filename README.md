@@ -1,4 +1,4 @@
 enchantjs_templete
 ==================
 
-my enchant.js templete
+This is templete of enchant.js
