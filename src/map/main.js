@@ -10,7 +10,15 @@ Array.prototype.shuffle = function() {
 	}
 	
 	return this;
-}
+};
+Array.prototype.contains = function(value){
+	for(var i = 0; i < this.length; i++){
+		if(this[i] === value){
+			return true;
+		}
+	}
+	return false;
+};
 
 /*
  * Generate Map
@@ -18,9 +26,9 @@ Array.prototype.shuffle = function() {
 function mapGen(col,row) {
 	// initialize map
 	var map = new Array(row*10);
-	for(i=0;i<map.length;i++){
+	for(var i=0;i<map.length;i++){
 		map[i] = new Array(col*10);
-		for(j=0;j<map[i].length;j++){
+		for(var j=0;j<map[i].length;j++){
 			map[i][j] = 131;
 		}
 	}
@@ -28,19 +36,22 @@ function mapGen(col,row) {
 	// choice room indexes
 	var indexes = (function (num){
 		var ids = new Array(num);
-		for(i=0;i<ids.length;i++){
+		for(var i=0;i<ids.length;i++){
 			ids[i] = i;
 		}
 
 		var len = Math.floor(Math.random()*(num/6) + num/3);
 		ids.shuffle();
-		for(i=0;i<len;i++) ids.pop(); 
+		for(var i=0;i<len;i++) ids.pop(); 
 		
+		ids.sort();
 		return ids;
 	})(col*row);
 
+	console.log(indexes);
+
 	// gen room
-	for (i = 0; i < indexes.length; i++) {
+	for (var i = 0; i < indexes.length; i++) {
 		//offset
 		var offset_x = Math.floor(Math.floor(indexes[i]%col)*10);
 		var offset_y = Math.floor(Math.floor(indexes[i]/col)*10);
@@ -52,13 +63,37 @@ function mapGen(col,row) {
 		offset_y = offset_y + h;
 		offset_x = offset_x + w;
 
-		for (j = offset_y; j < offset_y+random_h ; j++) {
-			for (k = offset_x; k < offset_x+random_w ; k++) {
+		for (var j = offset_y; j < offset_y+random_h ; j++) {
+			for (var k = offset_x; k < offset_x+random_w ; k++) {
 				map[j][k] = 132;
 			};
 		};
 	};
 
+	
+	var make_path = function(p,q){
+		var pt_1 = [Math.floor(Math.floor(p%col)*10+4), Math.floor(Math.floor(p/col)*10+4)];
+		var pt_2 = [Math.floor(Math.floor(q%col)*10+4), Math.floor(Math.floor(q/col)*10+4)];
+
+		for (pt_1[0] ; pt_1[0] <= pt_2[0]; pt_1[0]++) {
+			map[pt_1[1]][pt_1[0]] = 132;
+		};
+		for (pt_1[1] ; pt_1[1] <= pt_2[1]; pt_1[1]++) {
+			map[pt_1[1]][pt_1[0]] = 132;
+		};
+	};
+
+	// gen path
+	for (var i = 0; i < indexes.length; i++) {
+		var p = indexes[i];
+		if(p%col !== col-1 && indexes.contains(p+1)){
+			make_path(p,p+1);
+		}
+		if(indexes.contains(p+col)){
+			make_path(p,p+col);
+		}
+	}
+	
 	return map;
 }
 
